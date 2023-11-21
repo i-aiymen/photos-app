@@ -9,10 +9,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import "package:flutter/rendering.dart";
 import "package:flutter_displaymode/flutter_displaymode.dart";
+import "package:home_widget/home_widget.dart";
 import 'package:logging/logging.dart';
 import "package:media_kit/media_kit.dart";
 import 'package:path_provider/path_provider.dart';
 import 'package:photos/app.dart';
+import "package:photos/app_widget/app_widget.dart";
 import 'package:photos/core/configuration.dart';
 import 'package:photos/core/constants.dart';
 import 'package:photos/core/error-reporting/super_logging.dart';
@@ -65,6 +67,7 @@ void main() async {
   MediaKit.ensureInitialized();
   final savedThemeMode = await AdaptiveTheme.getThemeMode();
   await _runInForeground(savedThemeMode);
+  HomeWidget.registerBackgroundCallback(backgroundCallback);
   BackgroundFetch.registerHeadlessTask(_headlessTaskHandler);
   FlutterDisplayMode.setHighRefreshRate();
 }
