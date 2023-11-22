@@ -254,6 +254,9 @@ class _EnteAppState extends State<EnteApp> with WidgetsBindingObserver {
           'HomeWidget',
         ),
       );
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
       routeToPage(
         context,
         page,

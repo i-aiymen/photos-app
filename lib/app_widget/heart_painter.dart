@@ -1,18 +1,20 @@
 import "dart:ui" as ui;
+
 import "package:flutter/material.dart";
 
 class HeartPainter extends CustomPainter {
   final bool isSelected;
 
   HeartPainter({required this.isSelected});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint();
     paint
-      ..color = Colors.white
+      ..color = Colors.green
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 2;
+      ..strokeWidth = 3;
 
     final paint1 = Paint();
     paint1

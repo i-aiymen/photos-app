@@ -1,4 +1,5 @@
 import "dart:convert";
+import "dart:io";
 import "dart:math";
 
 import "package:collection/collection.dart";
@@ -9,6 +10,7 @@ import "package:logging/logging.dart";
 import "package:photo_manager/photo_manager.dart";
 import "package:photos/app_widget/circle_painter.dart";
 import "package:photos/app_widget/heart_painter.dart";
+import "package:photos/app_widget/preview_widget.dart";
 import "package:photos/app_widget/square_painter.dart";
 import "package:photos/core/configuration.dart";
 import 'package:photos/core/constants.dart';
@@ -20,6 +22,7 @@ import "package:photos/theme/text_style.dart";
 import "package:photos/ui/collections/flex_grid_view.dart";
 import "package:photos/ui/viewer/file/no_thumbnail_widget.dart";
 import "package:photos/ui/viewer/file/thumbnail_widget.dart";
+import "package:photos/utils/file_util.dart";
 import "package:photos/utils/thumbnail_util.dart";
 
 const shapeKey = 'shape';
@@ -288,9 +291,15 @@ class _AppWidgetState extends State<AppWidget> with WidgetsBindingObserver {
 
   List<CustomPainter> widgetShapes() {
     return [
-      SquarePainter(isSelected: selectedShape == 0),
-      CirclePainter(isSelected: selectedShape == 1),
-      HeartPainter(isSelected: selectedShape == 2),
+      SquarePainter(
+        isSelected: selectedShape == 0,
+      ),
+      CirclePainter(
+        isSelected: selectedShape == 1,
+      ),
+      HeartPainter(
+        isSelected: selectedShape == 2,
+      ),
     ];
   }
 
@@ -335,6 +344,7 @@ class _AppWidgetState extends State<AppWidget> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
+
     final int albumsCountInOneRow = max(
       screenWidth ~/ CollectionsFlexiGridViewWidget.maxThumbnailWidth,
       2,
@@ -508,12 +518,35 @@ class _AppWidgetState extends State<AppWidget> with WidgetsBindingObserver {
                         ),
                         width: sideOfThumbnail,
                         height: sideOfThumbnail,
-                        child: currentWidgetFile != null
-                            ? ThumbnailWidget(
-                                currentWidgetFile!,
-                                shouldShowSyncStatus: false,
-                              )
-                            : const NoThumbnailWidget(),
+                        child: FutureBuilder<File?>(
+                          future: currentWidgetFile != null
+                              ? getFile(currentWidgetFile!)
+                              : null,
+                          builder: (context, snapshot) {
+                            if (currentWidgetFile == null) {
+                              return const CircularProgressIndicator();
+                            } else if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            } else if (snapshot.hasError) {
+                              print('Error loading file: ${snapshot.error}');
+                              return Text(
+                                'Error loading file: ${snapshot.error}',
+                              );
+                            } else if (snapshot.hasData &&
+                                snapshot.data != null) {
+                              return Center(
+                                child: selectedShapeWidget(
+                                  selectedShape,
+                                  sideOfThumbnail,
+                                  snapshot.data!,
+                                ),
+                              );
+                            } else {
+                              return const NoThumbnailWidget();
+                            }
+                          },
+                        ),
                       ),
                     ),
                     Container(
