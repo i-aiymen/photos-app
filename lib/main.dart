@@ -9,7 +9,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import "package:flutter/rendering.dart";
 import "package:flutter_displaymode/flutter_displaymode.dart";
-import "package:home_widget/home_widget.dart";
 import 'package:logging/logging.dart';
 import "package:media_kit/media_kit.dart";
 import 'package:path_provider/path_provider.dart';
@@ -67,7 +66,6 @@ void main() async {
   MediaKit.ensureInitialized();
   final savedThemeMode = await AdaptiveTheme.getThemeMode();
   await _runInForeground(savedThemeMode);
-  HomeWidget.registerBackgroundCallback(backgroundCallback);
   BackgroundFetch.registerHeadlessTask(_headlessTaskHandler);
   FlutterDisplayMode.setHighRefreshRate();
 }
@@ -156,7 +154,7 @@ Future<void> _init(bool isBackground, {String via = ''}) async {
   _scheduleHeartBeat(preferences, isBackground);
   AppLifecycleService.instance.init(preferences);
   if (isBackground) {
-    AppLifecycleService.instance.onAppInBackground('init via: $via');
+    AppLifecycleService.instance.onAppInBackground("init via: $via");
   } else {
     AppLifecycleService.instance.onAppInForeground('init via: $via');
   }
@@ -165,6 +163,7 @@ Future<void> _init(bool isBackground, {String via = ''}) async {
   CryptoUtil.init();
   await NetworkClient.instance.init();
   await Configuration.instance.init();
+  await backgroundHomeWidgetCallback();
   await UserService.instance.init();
   await EntityService.instance.init();
   LocationService.instance.init(preferences);
